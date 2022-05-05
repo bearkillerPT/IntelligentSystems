@@ -1,0 +1,21 @@
+{
+  "name": "eliza-react",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "elizabot": "^0.0.2",
+    "lodash.debounce": "^4.0.8",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "react-scripts": "1.1.1",
+    "react-scroll": "^1.7.7",
+    "semantic-ui-css": "^2.3.0",
+    "semantic-ui-react": "^0.78.3"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}

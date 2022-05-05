@@ -1,0 +1,51 @@
+.app{
+    display: flex;
+    flex-direction: column;
+}
+.appHeaderTitle{
+    font-weight: bolder;
+    font-size: x-large;
+    color: white;
+}
+.appHeaderSubTitle{
+    font-size: medium;
+    font-weight: bold;
+    color: white;
+}
+.appHeader{
+    position: absolute;
+    left: 0;
+    align-items: center;
+    flex-direction: column;
+    color: white;
+    justify-content: center;
+    background-color: rgb(90, 88, 88);
+    top: 0;
+    display: flex;
+    width: 100%;
+    height: 20%;
+}
+.appBody{
+    position: absolute;
+    top: 20%;
+    left: 0%;
+    display: flex;
+    width: 100%;
+    height: 80%;
+    flex-direction: row;
+    background-color: rgb(163, 161, 180);
+}
+.projectDescription{
+    display: flex;
+    width: 67%;
+    padding: 5%;
+    justify-content: baseline;
+    color: white;
+    align-items: center;
+    flex-direction: column;
+}
+.chatComponent{
+    background-color: aliceblue;
+    display: flex;
+    width: 33%;
+}
