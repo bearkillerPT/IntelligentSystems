@@ -14,12 +14,13 @@ def main():
         print("\tAll words in Singular:" + str([Word(word).singularize() for word in input_textblob.words]))    
         print("\tAll words in Plural:" + str([Word(word).pluralize() for word in input_textblob.words]))    
         print("\tLemmatization:" + str([Word(word).lemmatize() for word in input_textblob.words]))    
+        print("\tWord definitions:\n")    
+        [print("\t\t" +word + " -> " + str(Word(word).definitions) + "\n") for word in input_textblob.words]
         print("Sentiment Analisys:")    
         print("\tPolarity:" + str(input_sentiment.polarity))    
         print("\tSubjectivity:" + str(input_sentiment.subjectivity))    
-        print("Spelling correction:" + str(input_textblob.correct()))    
-
-
+        corrected_input = input_textblob.correct()
+        print("Spelling correction:" + str(corrected_input))
 
 
 if __name__ == "__main__":
