@@ -3,7 +3,6 @@ from textblob import TextBlob, Word
 
 
 def main():
-    print(Word("octopus").lemmatize() )
     print("Escreva Sair para parar o programa!")
     while (user_input := input("Introduza uma frase.\n")) != "Sair":
         input_textblob = TextBlob(user_input)
