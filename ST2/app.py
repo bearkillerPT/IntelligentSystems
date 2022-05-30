@@ -20,7 +20,10 @@ def main():
         print("\tPolarity:" + str(input_sentiment.polarity))    
         print("\tSubjectivity:" + str(input_sentiment.subjectivity))    
         corrected_input = input_textblob.correct()
-        print("Spelling correction:" + str(corrected_input))
+        if user_input != corrected_input:
+            print("Spell Checker:" + str(corrected_input))
+        else:
+            print("Spell Checker: no errors found!")
 
 
 if __name__ == "__main__":
