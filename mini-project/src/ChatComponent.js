@@ -35,16 +35,11 @@ class ChatComponent extends Component {
   }
 
   reply = () => {
-    const unreplied = [];
     const messages = this.state.messages.slice(0);
-    let iter = messages.length - 1;
-    while (messages[iter].user && iter >= 0) {
-      unreplied.unshift(messages[iter].text);
-      iter--;
-    }
-    if (unreplied.length === 0)
+    if (this.state.messages.length === 0)
       return;
-    let response = this.eliza.transform(unreplied.join(' '));
+    let question = this.state.messages.join(' ');
+    fetch('https://nlp.si.bearkillerpt.xyz/question"')
     messages.push({
       user: false,
       text: this.fixup(response),

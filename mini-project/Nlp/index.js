@@ -12,12 +12,11 @@
 //npm i pengines
 import nlp from 'compromise'
 import express from 'express';
-import natural from 'natural'
 
-var Pengine = require('pengines');
-var pengine = new Pengine({
-	server: 'https://swipl.si.bearkillerpt.xyz'
-});
+//var Pengine = require('pengines');
+//var pengine = new Pengine({
+//	server: 'https://swipl.si.bearkillerpt.xyz/'
+//});
 
 const PORT = 3009;
 
