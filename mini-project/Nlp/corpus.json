@@ -1,0 +1,83 @@
+{
+    "name": "Corpus",
+    "locale": "en-US",
+    "data": [
+        {
+        "intent": "greetings.action",
+        "utterances": [
+          "travel",
+          "fly",
+          "visit",
+          "airport"
+        ],
+        "answers": [
+          "Wait, don't leave! I'll miss you",
+          "Byeeee",
+          "Well it was nice meeting you, byeee",
+          "Hope to see you later"
+
+        ]
+      },
+      {
+        "intent": "agent.birthday",
+        "utterances": [
+          "when is your birthday",
+          "when do you celebrate your birthday",
+          "when were you born",
+          "when do you have birthday",
+          "date of your birthday"
+        ],
+        "answers": [
+          "Wait, are you planning a party for me? It's today! My birthday is today!",
+          "I'm young. I'm not sure of my birth date",
+          "I don't know my birth date. Most virtual agents are young, though, like me."
+        ]
+      },
+      {
+        "intent": "greetings.bye",
+        "utterances": [
+          "see you next time",
+          "i'll see you later'",
+          "i have to go",
+          "bye",
+          "goodbye",
+          "i've run out of time"
+        ],
+        "answers": [
+          "Wait, don't leave! I'll miss you",
+          "Byeeee",
+          "Well it was nice meeting you, byeee",
+          "Hope to see you later"
+
+        ]
+      },{
+        "intent": "greetings.hello",
+        "utterances": [
+          "Hello",
+          "Hey",
+          "Yo",
+          "Hi",
+          "Greetings"
+        ],
+        "answers": [
+          "Hello!",
+          "Hi mate!",
+          "Howdy, need anything from me?"
+        ]
+      },{
+        "intent": "travel.flight",
+        "utterances": [
+          "flights between ",
+          "travel too",
+          "airport"
+        ],
+        "answers": [
+          "Wait, don't leave! I'll miss you",
+          "Byeeee",
+          "Well it was nice meeting you, byeee",
+          "Hope to see you later"
+
+        ]
+      }
+    ]
+  }

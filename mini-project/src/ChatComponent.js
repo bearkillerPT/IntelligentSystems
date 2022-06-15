@@ -2,10 +2,8 @@ import React, { Component } from 'react';
 import { Comment, Header } from 'semantic-ui-react';
 import ElizaBot from 'elizabot';
 import debounce from 'lodash.debounce';
-
 import ChatHistory from './ChatHistory'
 import ChatInput from './ChatInput'
-
 class ChatComponent extends Component {
   constructor(props) {
     super(props);
