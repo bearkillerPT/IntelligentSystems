@@ -33,6 +33,8 @@ class ChatComponent extends Component {
       return;
 
     var messages = this.state.messages.slice(0);
+    var client = this.analyzer.analyze_question(this.fixup(input))
+
     messages.push({
       user: true,
       text: input,
@@ -41,32 +43,20 @@ class ChatComponent extends Component {
     this.setState({
       messages,
     });
-    this.debounced_reply(input);
+    this.debounced_reply(client.Answer);
   }
-  reply = (input) => {
+  reply = (reply) => {
     const messages = this.state.messages.slice(0);
     if (this.state.messages.length === 0)
       return;
-    var client = this.analyzer.analyze_question(this.fixup(input))
+    reply.forEach(element => {
+      messages.push({
+        user: false,
+        text: element,
+        date: new Date(),
+      });
+    })
 
-    fetch("https://nlp.si.bearkillerpt.xyz/api?query=" + this.fixup(input)).then(e => e.json()).then(e => console.log(e)).catch(e => console.log(e));
-    client.Answer.forEach(element => {
-      messages.push({
-        user: false,
-        text: element,
-        date: new Date(),
-      });
-      this.setState({
-        messages,
-      });
-    })
-    client.Answer.forEach(element => {
-      messages.push({
-        user: false,
-        text: element,
-        date: new Date(),
-      });
-    })
     this.setState({
       messages,
     });

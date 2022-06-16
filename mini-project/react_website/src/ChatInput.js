@@ -39,7 +39,7 @@ class ChatInput extends Component {
         onChange={this.handleChange}
         onKeyDown={this.handleKeyDown}
         action={{ color: 'teal', icon: 'arrow right', onClick: this.handleClick}}
-        placeholder='Write to ELIZA...'
+        placeholder='Write to Morty...'
         value={this.state.value}
       />
     );

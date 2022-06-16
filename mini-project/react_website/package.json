@@ -1,13 +1,11 @@
 {
-  "name": "eliza-react",
+  "name": "morty-react",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
     "compromise": "^14.3.1",
     "create-react-app": "^5.0.1",
-    "elizabot": "^0.0.2",
     "lodash.debounce": "^4.0.8",
-    "pengines": "^2.0.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-scripts": "1.1.1",
