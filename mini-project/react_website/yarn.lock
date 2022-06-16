@@ -2221,6 +2221,11 @@ d@1, d@^1.0.1:
     es5-ext "^0.10.50"
     type "^1.0.1"
 
+damerau-levenshtein-js@^1.1.8:
+  version "1.1.8"
+  resolved "https://registry.yarnpkg.com/damerau-levenshtein-js/-/damerau-levenshtein-js-1.1.8.tgz#918a30844aaaab8d948e22146f867ad3342a4fcc"
+  integrity sha512-J+v8+HOiAbWUUuvcn+8gnBr1D+CpP0i09a2+zmJHmyaRqMvfosf7MJ+FLp1vypvfN6MRPKnP/wuMIGJVK7MpNg==
+
 damerau-levenshtein@^1.0.0:
   version "1.0.8"
   resolved "https://registry.npmjs.org/damerau-levenshtein/-/damerau-levenshtein-1.0.8.tgz"
@@ -2543,11 +2548,6 @@ electron-to-chromium@^1.2.7, electron-to-chromium@^1.3.30:
   version "1.4.119"
   resolved "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.4.119.tgz"
   integrity sha512-HPEmKy+d0xK8oCfEHc5t6wDsSAi1WmE3Ld08QrBjAPxaAzfuKP66VJ77lcTqxTt7GJmSE279s75mhW64Xh+4kw==
-
-elizabot@^0.0.2:
-  version "0.0.2"
-  resolved "https://registry.npmjs.org/elizabot/-/elizabot-0.0.2.tgz"
-  integrity "sha1-kUHxnNYNqJ3VH/gn/tRGyjC+Gx4= sha512-SGkxDzw9jmsS3J0Ti8R+O6iyrv9SyeCbTA8/jafNbDNhudliFWOYoykHZlyNNgYPWuSZ656IkKmUUcAbKuZjiw=="
 
 elliptic@^6.5.3:
   version "6.5.4"
@@ -4843,11 +4843,6 @@ jest@20.0.4:
   dependencies:
     jest-cli "^20.0.4"
 
-jquery-deferred@^0.3.0:
-  version "0.3.1"
-  resolved "https://registry.npmjs.org/jquery-deferred/-/jquery-deferred-0.3.1.tgz"
-  integrity sha512-YTzoTYR/yrjmNh6B6exK7lC1jlDazEzt9ZlZvdRscv+I1AJqN1SmU3ZAn4iMGiVhwAavCrbijDVyTc0lmr9ZCA==
-
 jquery@x.*:
   version "3.6.0"
   resolved "https://registry.npmjs.org/jquery/-/jquery-3.6.0.tgz"
@@ -5509,15 +5504,6 @@ mute-stream@0.0.7:
   resolved "https://registry.npmjs.org/mute-stream/-/mute-stream-0.0.7.tgz"
   integrity "sha1-MHXOk7whuPq0PhvE2n6BFe0ee6s= sha512-r65nCZhrbXXb6dXOACihYApHw2Q6pV0M3V0PSxd74N0+D8nzAdEAITq2oAjA1jVnKI+tGvEBUpqiMh0+rW6zDQ=="
 
-najax@^1.0.4:
-  version "1.0.7"
-  resolved "https://registry.npmjs.org/najax/-/najax-1.0.7.tgz"
-  integrity sha512-JqBMguf2plv1IDqhOE6eebnTivjS/ej0C/Sw831jVc+dRQIMK37oyktdQCGAQtwpl5DikOWI2xGfIlBPSSLgXg==
-  dependencies:
-    jquery-deferred "^0.3.0"
-    lodash "^4.17.21"
-    qs "^6.2.0"
-
 nan@^2.12.1:
   version "2.16.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.16.0.tgz#664f43e45460fb98faf00edca0bb0d7b8dce7916"
@@ -6037,13 +6023,6 @@ pbkdf2@^3.0.3:
     ripemd160 "^2.0.1"
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
-
-pengines@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.npmjs.org/pengines/-/pengines-2.0.0.tgz"
-  integrity sha512-Py6xM1kZTCBTC/FtOYwjUelrnOYT5c2qFn+/fJQgyFr+Z7CeB4f3W6zcZkvBJymmkgbDoz6zfojk6lLTkQXF7w==
-  dependencies:
-    najax "^1.0.4"
 
 performance-now@^2.1.0:
   version "2.1.0"
@@ -6578,13 +6557,6 @@ qs@6.9.7:
   version "6.9.7"
   resolved "https://registry.npmjs.org/qs/-/qs-6.9.7.tgz"
   integrity sha512-IhMFgUmuNpyRfxA90umL7ByLlgRXu6tIfKPpF5TmcfRLlLCckfP/g3IQmju6jjpu+Hh8rA+2p6A27ZSPOOHdKw==
-
-qs@^6.2.0:
-  version "6.10.5"
-  resolved "https://registry.npmjs.org/qs/-/qs-6.10.5.tgz"
-  integrity sha512-O5RlPh0VFtR78y79rgcgKK4wbAI0C5zGVLztOIdpWX6ep368q5Hv6XRxDvXuZ9q3C6v+e3n8UfZZJw7IIG27eQ==
-  dependencies:
-    side-channel "^1.0.4"
 
 qs@~6.5.2:
   version "6.5.3"

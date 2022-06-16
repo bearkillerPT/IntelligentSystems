@@ -16,10 +16,10 @@ const App = () => {
             </div>
             <div className='appBody'>
             <div className='projectDescription'>
-            <p className='appHeaderSubTitle'>
+            <p className='projectDescriptionTitle'>
             This chatbot was created to help guide users to their ideal travel destination! 
             </p>
-            <p className='appHeaderSubTitle'>
+            <p className='projectDescriptionTitle'>
             It will ask you general things about the destinations qualities and try to guess.
                 
             </p>

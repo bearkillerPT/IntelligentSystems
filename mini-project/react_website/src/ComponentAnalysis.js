@@ -3,14 +3,14 @@
 
 //npm i compromise
 import nlp from 'compromise'
-
-
+import ConversationProvider from './AnswerProvider'
+import dljs from 'damerau-levenshtein-js'
 
 class ClientAnalysis {
     
     constructor(){  
-      
-
+        this.dljs = 
+        this.cp = new ConversationProvider()
         this.state = {
             client : {
                 "Destination":-1,
@@ -37,6 +37,7 @@ class ClientAnalysis {
                 spring: 'Season',
                 autumn: 'Season',
                 no:     'Negative',
+                nope:     'Negative',
                 city:   'City',
                 city:   "AttType",
                 nature: 'Nature',
@@ -103,6 +104,21 @@ class ClientAnalysis {
 
         console.log(doc.out('tags'))
 
+
+        if (doc.has("~(hello|hi|howdy|hey)~ *")){
+            client['!Action'].push("GREETING")
+        }
+        //Goodbye
+        if (doc.has("(goodbye|bye|see you later|until next time|farewell)")){
+            client['!Action'].push("FAREWELL")
+        }
+
+        if (doc.has("~(#Possessive|#Pronoun)~ * #Copula #Person") || doc.has("#Pronoun #Person")){
+            client['ClientName'] = doc.match("#Person").canBe("Person").text()
+            client['!Action'].push(this.cp.getQuestion('Greeting')+" "+client['ClientName'])
+        }
+
+
         //Question
         if (doc.has("#QuestionWord")){
             client['ToAnswer']=true;
@@ -118,20 +134,7 @@ class ClientAnalysis {
             client['ToAnswer']=true;
         }
 
-        //Welcome
-        if (doc.has("~(hello|hi|howdy|hey)~ *")){
-            client['!Action'].push("GREETING")
-        }
-        //Goodbye
-        if (doc.has("(goodbye|bye|see you later|until next time|farewell)")){
-            client['!Action'].push("FAREWELL")
-        }
-
-        if (doc.has("~(#Possessive|#Pronoun)~ * #Copula #Person") || doc.has("#Pronoun #Person")){
-            client['ClientName'] = doc.match("#Person").canBe("Person").text()
-        }
-
-
+      
 
         //Negative Answers
         if ('LQ' in client && client['LQ']!=undefined){
@@ -141,7 +144,6 @@ class ClientAnalysis {
                     if(doc.has("#City")){
                         client['LQ']=undefined
                         client["FinalLocation"] = doc.match("#City").canBe("Place").text()
-                
                         client['Destination']=1
                     }
                     if(doc.has("#Negative")){
@@ -173,9 +175,20 @@ class ClientAnalysis {
                         client['LQ']=undefined
                         client["Type"] = undefined
                     }
-    
+                case "ClientName":
+                    if(doc.has("#Negative")){
+                        client['LQ']=undefined
+                        client["ClientName"] = undefined
+                    }
+                    break;
             }
+
+            if (client['LQ']==undefined)
+                client['Answer'].push(this.cp.getQuestion('Confirmation'))
         }
+        //Welcome
+       
+
 
         //Questions Like:
         // Do you have a destination
@@ -219,9 +232,30 @@ class ClientAnalysis {
 
             //DATES
             if (doc.has("#Date")){
-                console.log("DATEEEEEEEEEEe")
-                client['Date'] = doc.match("#Date").canBe("Date").text()
-                if (client['LQ']==="Date") client['LQ']=undefined;
+                
+                if (doc.has("#Month") && doc.has("#NumericValue") ){
+                    var month =  doc.match("#Month").canBe("Month").text()                
+                    let max = {"value":100, "month":0};
+                    var mCounter = 1;
+                    ["January","February","March","April","May","June","July","August","September","October","November","December"].forEach(element=>{
+                        let result = dljs.distance(element, month);
+                        if (result<max['value']) max = {"value":result, "month":mCounter}
+                        mCounter++;
+                    });
+
+                    var month_st = max['month'].toString()
+                    if (month_st.length!=2) month_st = "0"+month_st
+                   
+
+                    var day =  doc.match("#NumericValue").canBe("NumericValue").text()  
+                    if (day.length==1) day = "0"+day
+                    if (day.length!=2) day = day.substring(0,2)
+                    client['Date'] = day+"-"+month_st
+                    if (client['LQ']==="Date") client['LQ']=undefined;
+
+                }else if (doc.has("#Season")){
+
+                }
             }
         
             //PRICE
@@ -243,9 +277,6 @@ class ClientAnalysis {
             //Type
 
             if (doc.has("~(fun|nature|city|historic)~", null, {fuzzy:0.6})){
-                var txt =doc.match('~(fun|nature|city|historic)~', null, {fuzzy:0.3}).text(); // stem a single word
-             
-
                 if (doc.has("~fun~", null, {fuzzy:0.6})){
                    client['Type'] = "Fun"
 
@@ -259,30 +290,31 @@ class ClientAnalysis {
                     client['Type'] = "Historical"
 
                  }
-
-
-              
-
-                
                 if (client['LQ']==="Type") client['LQ']=undefined;
             }
           
 
             client["!Action"].forEach(element=>{
                 if (element === "GREETING"){
-                    client['Answer'].push("hello! I'm Eliza!")
+                    client['Answer'].push(this.cp.getQuestion('Greeting'))
                 }else if (element === "FAREWELL"){
-                    client['Answer'].push("Goodbye")
+                    client['Answer'].push(this.cp.getQuestion('Farewell'))
+                }else if (element === "INTRODUCE"){
+                    client['Answer'].push(this.cp.getQuestion('Introduction'))
                 }
             })
             
         
 
-
-    
-    if ((!('FinalLocation' in client) && client['Destination']===-1 ) || client['LQ']==="FinalLocation" ){
-        client['Answer'].push("Where are you planning to go?")
+ 
+    if (!('ClientName' in client) ){
+        client['Answer'].push(this.cp.getQuestion('ClientName'))
+        client['LQ']="ClientName"
+        
+    }else if ((!('FinalLocation' in client) && client['Destination']===-1 ) || client['LQ']==="FinalLocation" ){
+        client['Answer'].push(this.cp.getQuestion('FinalLocation'))
         client['LQ']="FinalLocation"
+
     }else if(!('Date' in client) || client['LQ']==="Date" ){
         client['Answer'].push("When are you planning to go?")
         client['LQ']="Date"
@@ -297,9 +329,13 @@ class ClientAnalysis {
         client['Answer'].push("What kind of attraction are you looking for? Fun, Nature, historical or City?")
         client['LQ']="Type"
     }
-        
-    return client
+    if (client['ToAnswer']==false && client['Answer'].length==0){
+        client['Answer'].push(this.cp.getQuestion('Unsupported'))
+    }
     
+   
+    
+    return client
     
 }
 
@@ -311,6 +347,7 @@ class ClientAnalysis {
 export default ClientAnalysis
 
   
+
 
 
 

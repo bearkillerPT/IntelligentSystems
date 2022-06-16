@@ -7,7 +7,7 @@ class ChatMessage extends Component {
   render() {
     const message = this.props.message;
     let avatar = robotAvatar;
-    let author = 'ELIZA';
+    let author = 'Morty';
     let className = 'eliza';
     if (message.user) {
       avatar = humanAvatar;

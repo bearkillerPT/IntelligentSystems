@@ -5,6 +5,7 @@
   "dependencies": {
     "compromise": "^14.3.1",
     "create-react-app": "^5.0.1",
+    "damerau-levenshtein-js": "^1.1.8",
     "lodash.debounce": "^4.0.8",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",

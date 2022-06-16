@@ -69,14 +69,13 @@ class ChatComponent extends Component {
 
   render() {
     return (
-
       <div className="chatApp">
 
         <div full-width='full-width' padding-top="0">
           {JSON.stringify(this.state.client)}
         </div>
         <Header className="chatHeader" as='h3' block>
-          Chat with ELIZA
+          Chat with Morty!
         </Header>
         <Comment.Group className="chatBody">
           <ChatHistory messages={this.state.messages} />

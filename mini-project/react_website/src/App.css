@@ -4,12 +4,17 @@
 }
 .appHeaderTitle{
     font-weight: bolder;
-    font-size: x-large;
+    font-size: xx-large;
     color: white;
 }
 .appHeaderSubTitle{
     font-size: medium;
     font-weight: bold;
+    color: white;
+}
+.projectDescriptionTitle{
+    font-size: larger;
+    font-weight: bolder;
     color: white;
 }
 .appHeader{
@@ -46,6 +51,7 @@
 }
 .chatComponent{
     background-color: aliceblue;
-    display: flex;
     width: 33%;
+    display: block;
+    height: 100%;
 }

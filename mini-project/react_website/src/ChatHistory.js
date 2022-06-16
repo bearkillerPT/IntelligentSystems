@@ -4,9 +4,11 @@ import { animateScroll } from "react-scroll";
 
 class ChatHistory extends Component {
   scrollToBottom = () => {
+    setTimeout(() => {
     animateScroll.scrollToBottom({
       containerId: "chatHistory"
     });
+    }, 150);
   }
 
   componentDidMount() {
