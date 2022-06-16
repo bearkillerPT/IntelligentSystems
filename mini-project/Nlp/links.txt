@@ -1,7 +1,0 @@
-https://github.com/spencermountain/compromise
-https://observablehq.com/@spencermountain/compromise-match-syntax
-https://www.npmjs.com/package/subject-extractor
-https://observablehq.com/@spencermountain/compromise-match
-https://observablehq.com/@spencermountain/tutorial-1
-
-https://observablehq.com/@spencermountain/compromise-tags
