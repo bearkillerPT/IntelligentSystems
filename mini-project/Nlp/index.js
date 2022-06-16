@@ -12,13 +12,20 @@
 //npm i pengines
 import nlp from 'compromise'
 import express from 'express';
-import Pengine from 'pengines';
-const pengine = new Pengine({
-	server: 'http://127.0.0.1:3008',
-	ask: "what"
-});
-console.log(pengine.request)
-
+import fetch from 'node-fetch';
+//import Pengine from 'pengines';
+//const pengine = new Pengine({
+//	server: 'http://127.0.0.1:3008/',
+//	ask: "what"
+//});
+//console.log(pengine.request)
+fetch(
+	"http://127.0.0.1:3008",
+	{method: 'POST',
+	 headers: {'Content-Type': 'application/json'},
+	 body: JSON.stringify({query: 'attraction(X, Y, "Zoo", Z, W )'}),
+	 mode: 'cors',
+	}).then(e=>console.log).catch(e=>console.log);
 
 
 const PORT = 3009;

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Comment, Header } from 'semantic-ui-react';
-import ElizaBot from 'elizabot';
 import debounce from 'lodash.debounce';
 import ChatHistory from './ChatHistory'
 import ChatInput from './ChatInput'
@@ -15,14 +14,21 @@ class ChatComponent extends Component {
         date: new Date(),
       }],
     };
-    this.debounced_reply = debounce(this.reply, 1000, { 'maxWait': 5000 });
+    this.debounced_reply = debounce((res=>this.reply(res)), 1000, { 'maxWait': 5000 });
   }
 
   handleInput = (input) => {
     input = input.trim();
     if (!input)
       return;
-    const messages = this.state.messages.slice(0);
+    const messages = this.state.messages.slice(1);
+    fetch(
+      "https://swipl.si.bearkillerpt.xyz",
+      {method: 'POST',
+       headers: {'Content-Type': 'application/json'},
+       body: JSON.stringify(input),
+       mode: 'cors',
+      }).then(e=>console.log).catch(e=>console.log);
     messages.push({
       user: true,
       text: input,
@@ -31,18 +37,17 @@ class ChatComponent extends Component {
     this.setState({
       messages,
     });
-    this.debounced_reply();
+    this.debounced_reply(input);
   }
 
-  reply = () => {
+  reply = (res) => {
     const messages = this.state.messages.slice(0);
     if (this.state.messages.length === 0)
       return;
     let question = this.state.messages.join(' ');
-    fetch('https://nlp.si.bearkillerpt.xyz/question"')
     messages.push({
       user: false,
-      text: this.fixup(response),
+      text: res,//this.fixup(response),
       date: new Date(),
     });
     this.setState({
