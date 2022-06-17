@@ -42,34 +42,7 @@ class ClientAnalysis {
         })
     }
    
-    callProlog(input){
-        //attraction_type(X,Y)
-        input = input.trim();
-    
-        if (!input)
-          return;
-
-        fetch('http://localhost:3009/api?query='+input)
-        .then(async response => {
-            const data = await response.json();
-    
-            // check for error response
-            if (!response.ok) {
-                // get error message from body or default to response statusText
-                const error = (data && data.message) || response.statusText;
-                return Promise.reject(error);
-            }
-            console.log(data)
-    
-            //attraction_type(A,B)
-            
-            
-        })
-        .catch(error => {
-            console.error('There was an error!', error);
-        });
-      }
-
+   
       seasonDate(date){
         var seasons = ["summer", "winter", "autumn", "spring"]
         var winter_months = ["january", "february", "march"]
@@ -84,7 +57,7 @@ class ClientAnalysis {
             new_date = "Autumn";
         }
         if (seasons.includes(new_date.toLowerCase()))
-            return new_date;
+            return new_date.substr(0,1).toUpperCase()+new_date.substr(1);
 
         seasons.forEach(element =>{
             if(date.includes(element.toLowerCase())){
@@ -163,21 +136,22 @@ class ClientAnalysis {
                 if ("Price" in this.state.client && this.state.client["Price"]!==undefined){
                     switch(this.state.client["Price"]['Filter']){
                         case "+":
-                            txt=txt.replace("accomodation", "accomodation_price_greater");
-                            txt = txt.replace("Price", '"'+this.state.client["Price"]['Value']+'"');
+                            txt='accomodation_price_greater(FinalLocation,Date,Type,Price,"'+this.state.client["Price"]['Value']+'")';
+                     
                             break;
                         case "-":
-                            txt=txt.replace("accomodation", "accomodation_price_lower");
-                            txt = txt.replace("Price", '"'+this.state.client["Price"]['Value']+'"');
+                            txt='accomodation_price_lower(FinalLocation,Date,Type,Price,"'+this.state.client["Price"]['Value']+'")';
                             break;
                         case "+-":
-                            txt = txt.replace("accomodation", "accomodation_price_between");
-                            txt = txt.replace("Price", '"'+this.state.client["Price"]["Min"]+'","'+this.state.client["Price"]['Max']+'"');
+                            txt = 'accomodation_price_between(FinalLocation,Date,Type,Price"'+this.state.client["Price"]["Min"]+'","'+ this.state.client["Price"]['Max']+'")';
+                         
                             break;
                     }
                 }
 
-                ["FinalLocation", "Date", "Type"].forEach(element=>{
+           
+
+                ["FinalLocation", "Date"].forEach(element=>{
                     if(element in this.state.client && this.state.client[element]!==undefined){
                         if (element === "Date"){
                             txt = txt.replace("Date", '"'+this.seasonDate(this.state.client[element])+'"')
@@ -186,7 +160,6 @@ class ClientAnalysis {
                         }
                     }
                 })
-                console.log(txt)
                 break;
                
             // flight("From - Country", "From - Continent", "To - Country", "To - Continent", "Date", "Hour", "Class", "Price").
@@ -195,14 +168,14 @@ class ClientAnalysis {
                 if ("Price" in this.state.client && this.state.client["Price"]!==undefined){
                     switch(this.state.client["Price"]['Filter']){
                         case "+":
-                            txt='flight_price_greater(InitialLocation,FinalLocation,Date,Hour,Class,"'+this.state.client["Price"]['Value']+'")';
+                            txt='flight_price_greater(InitialLocation,FinalLocation,Date,Hour,Class,Price,"'+this.state.client["Price"]['Value']+'")';
                      
                             break;
                         case "-":
-                            txt='flight_price_lower(InitialLocation,FinalLocation,Date,Hour,Class,"'+this.state.client["Price"]['Value']+'")';
+                            txt='flight_price_lower(InitialLocation,FinalLocation,Date,Hour,Class,Price,"'+this.state.client["Price"]['Value']+'")';
                             break;
                         case "+-":
-                            txt = 'flight_price_between(InitialLocation,FinalLocation,Date,Hour,Class,"'+this.state.client["Price"]["Min"]+'","'+ this.state.client["Price"]['Max']+'")';
+                            txt = 'flight_price_between(InitialLocation,FinalLocation,Date,Hour,Class,Price,"'+this.state.client["Price"]["Min"]+'","'+ this.state.client["Price"]['Max']+'")';
                          
                             break;
                     }
@@ -217,25 +190,24 @@ class ClientAnalysis {
                         }
                     }
                 });
-                console.log(txt)
                 break;
 
 
            
             // attraction("Where", "Season", "Type", "Name", "Price").
             case "ATTRACTION":
-                txt = 'get_attractions_given_type(FinalLocation,Date,AttractionSubtype,Type,Name,Price)';
+                txt = 'get_attractions_given_type(FinalLocation,Date,Type,AttractionSubtype,Name,Price)';
                 if ("Price" in this.state.client && this.state.client["Price"]!==undefined){
                     switch(this.state.client["Price"]['Filter']){
                         case "+":
-                            txt='attraction_price_greater(FinalLocation,Date,AttractionSubtype,Type,Name,"'+this.state.client["Price"]['Value']+'")';
+                            txt='attraction_price_greater(FinalLocation,Date,Type,AttractionSubtype,Name,Price,"'+this.state.client["Price"]['Value']+'")';
                      
                             break;
                         case "-":
-                            txt='attraction_price_lower(FinalLocation,Date,AttractionSubtype,Type,Name,"'+this.state.client["Price"]['Value']+'")';
+                            txt='attraction_price_lower(FinalLocation,Date,Type,AttractionSubtype,Name,Price,"'+this.state.client["Price"]['Value']+'")';
                             break;
                         case "+-":
-                            txt = 'attraction_price_between((FinalLocation,Date,AttractionSubtype,Type,Name,"'+this.state.client["Price"]["Min"]+'","'+ this.state.client["Price"]['Max']+'")';
+                            txt = 'attraction_price_between((FinalLocation,Date,Type,AttractionSubtype,Name,Price,"'+this.state.client["Price"]["Min"]+'","'+ this.state.client["Price"]['Max']+'")';
                             break;
                     }
                 }
@@ -249,12 +221,12 @@ class ClientAnalysis {
                         }
                     }
                 });
-                console.log(txt)  
                 break;
             default:
                 break;
         }
-        this.callProlog(txt)
+        
+        console.log(txt)  
         return txt;
     };
    
@@ -268,6 +240,7 @@ class ClientAnalysis {
         var client = this.state.client;
         client['Answer']= []
         client['!Action']= []
+        client['ToAnswer']= false
 
         console.log(doc.out('tags'))
 
@@ -319,18 +292,18 @@ class ClientAnalysis {
             }
             changed = true
         }
-        if (doc.has("~(start over|restart|reset)~", null, {fuzzy:0.6})){
-            client['Answer'].push(this.cp.getQuestion('Reset'))
-            this.state = {
-                client : {
+        if  (doc.has("~reset~",null,{fuzzy:0.8}) || doc.has("~start~",null,{fuzzy:0.8})){
+            console.log("------------")
+            client = {
                     "Destination":-1,
                     "Answer" : client["Answer"],
                     "ClientName" : client["ClientName"],
                     "!Action":[],
                     "ToAnswer":false
     
-                }
+                
             }
+            client['Answer'].push(this.cp.getQuestion('Reset'))
             changed = true
         }
 
@@ -404,17 +377,18 @@ class ClientAnalysis {
         // 0-No, 1-Yes, -1- Not Answered
 
             // What do You Wanna Do (STAY|FLIGHT|ATTRACTION)
-            if (doc.has("~(flights|fly|airplane|takeoff)~", null, {fuzzy:0.6})){
+            if ((doc.has("~flights~") || doc.has("~takeoff~") || doc.has("~airplane~") || doc.has("~fly~"))){
+                
                 client['Action'] = "FLIGHT"
                 if (client['LQ']==="Action") client['LQ']=undefined;
                 changed = true
 
-            }else if (doc.has("~(stay|accomodation|hotel|room|motel)~", null, {fuzzy:0.6})){
+            }else if (doc.has("~stay~") || doc.has("~accomodation~") || doc.has("~sleep~") || doc.has("~hotel~")){
                 client['Action'] = "STAY"
                 if (client['LQ']==="Action") client['LQ']=undefined;
                 changed = true
 
-            }else if (doc.has("~(attractions|events)~", null, {fuzzy:0.6})){
+            }else if (doc.has("~attractions~") || doc.has("~events~")){
                 client['Action'] = "ATTRACTION"
                 if (client['LQ']==="Action") client['LQ']=undefined;
                 changed = true
@@ -565,13 +539,11 @@ class ClientAnalysis {
         }else{
             txt = this.handleProlog();
         }
-        client['Answer'].splice(0,0,"Don't worry, we're processing your request!");
-    
-        console.log(txt)
+        client['Query']=txt
         // 
         //this.callProlog(txt);
     }
-  
+    console.log(client['Query'])
     return client
     
     }
