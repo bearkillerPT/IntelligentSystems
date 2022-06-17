@@ -257,6 +257,7 @@ class ClientAnalysis {
         this.callProlog(txt)
         return txt;
     };
+   
       
     analyze_question=(input)=> {
         let doc = nlp(input)
@@ -405,17 +406,17 @@ class ClientAnalysis {
             // What do You Wanna Do (STAY|FLIGHT|ATTRACTION)
             if (doc.has("~(flights|fly|airplane|takeoff)~", null, {fuzzy:0.6})){
                 client['Action'] = "FLIGHT"
-                if (client['Action']==="InitialLocation") client['LQ']=undefined;
+                if (client['LQ']==="Action") client['LQ']=undefined;
                 changed = true
 
             }else if (doc.has("~(stay|accomodation|hotel|room|motel)~", null, {fuzzy:0.6})){
                 client['Action'] = "STAY"
-                if (client['Action']==="InitialLocation") client['LQ']=undefined;
+                if (client['LQ']==="Action") client['LQ']=undefined;
                 changed = true
 
             }else if (doc.has("~(attractions|events)~", null, {fuzzy:0.6})){
                 client['Action'] = "ATTRACTION"
-                if (client['Action']==="InitialLocation") client['LQ']=undefined;
+                if (client['LQ']==="Action") client['LQ']=undefined;
                 changed = true
             }
             if (doc.has("#Place") && !doc.has("#City")){
@@ -450,7 +451,7 @@ class ClientAnalysis {
                 var data =  doc.match("#Date").canBe("Date").text();
                 changed = true;
                 client['Date'] = data;
-                if (client['LQ']==="Date") 
+                if (client['LQ']==="Date")
                     client['LQ']=undefined;
             }
         
@@ -550,7 +551,7 @@ class ClientAnalysis {
 
     //Order
     // Add function to provide data based on filter
-    if (doc.has("~(show|find|see|give|tell)~")){
+    if (doc.has("~(show|find|see|give|tell)~") || client.Answer.length===0){
         client['ToAnswer']=true;
 
         var txt;
