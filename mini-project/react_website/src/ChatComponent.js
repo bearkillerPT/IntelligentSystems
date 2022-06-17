@@ -62,8 +62,8 @@ class ChatComponent extends Component {
       this.setState({
         messages,
       });
-      var changed = false;
-      fetch('http://localhost:3009/api?query='+query)
+      try {
+        fetch('http://localhost:3009/api?query='+query)
       .then(async response => {
           const data = await response.json();
 
@@ -91,6 +91,17 @@ class ChatComponent extends Component {
           return data
           //attraction_type(A,B)
       })
+      } catch (error) {
+        messages.push({
+          user: false,
+          text: "Something Failed, I'm Sorry",
+          date: new Date(),
+        });
+      this.setState({
+        messages,
+      });
+      }
+      
         
       
       
@@ -114,7 +125,39 @@ class ChatComponent extends Component {
   stringify(query, object){
     var txt = ""
     Object.keys(object).forEach(element=>{
-      txt+= object[element]+","
+      switch(element){
+        case "Price":
+          txt+= "Price is "+object[element]+"€, "
+          break;
+        case "Class":
+          txt+= object[element]+" Class, "
+          break;
+        
+        case "Date":
+          txt+= "Date: "+object[element]+", "
+          break;
+
+        case "Hour":
+          txt+= "Departure at "+object[element]+"h, "
+          break;
+        case "Type":
+          txt+= "Of type "+object[element]+", "
+          break;
+        case "AttractionSubtype":
+            txt+= "Of Subtype "+object[element]+", "
+            break;
+        case "InitialLocation":
+            txt+= "From "+object[element]+", "
+            break;
+        case "FinalLocation":
+          txt+= "To "+object[element]+", "
+          break;
+        case "Name":
+          txt+= "it is called "+object[element]+", "
+          break;
+        default:
+          txt+=object[element]+", "
+      }
     })
    
     
@@ -126,17 +169,31 @@ class ChatComponent extends Component {
     // Hack fix for weird "?" spacing in elizabot
     return text.replace(/ \?/g, '?');
   }
-/*
-        <div full-width='full-width' padding-top="0">
-          {JSON.stringify(this.state.client)}
-        </div>*/
+
   render() {
+    var maxPrice = "-";
+    var minPrice = "-";
+    if (("Price" in this.state.client) && this.state.client["Price"] != undefined){
+      maxPrice = this.state.client["Price"]["Max"];
+      minPrice = this.state.client["Price"]["Min"]
+    }
+    
     return (
       <div className="chatApp">
-        
+       
         <Header className="chatHeader" as='h3' block>
-          Chat with Morty!
+          
+          <div>
+            <h1>Chat with Morty!</h1>
+          <p className='student_name'>User: {this.state.client.ClientName}</p>
+          <p>Looking For: {this.state.client.Action}</p>
+          <p>Original Location: {this.state.client.InitialLocation}</p>
+          <p>Destination: {this.state.client.FinalLocation}</p>
+          <p>Date: {this.state.client.Date}</p>
+          <p>Max Price: {maxPrice}, Min Price: {minPrice}  </p>
+       </div>
         </Header>
+        
         <Comment.Group className="chatBody">
           <ChatHistory messages={this.state.messages} />
           <ChatInput inputHandler={this.handleInput} />

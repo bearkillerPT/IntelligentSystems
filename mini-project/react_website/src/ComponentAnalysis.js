@@ -13,7 +13,7 @@ class ClientAnalysis {
                 "Destination":-1,
                 "Answer" : [],
                 "!Action":[],
-                "ToAnswer":false
+                "ToAnswer":false,
             }
         }
 
@@ -74,20 +74,17 @@ class ClientAnalysis {
         })
         winter_months.forEach(element =>{
             if(date.includes(element)){
-                new_date = "Winter";
-                console.log(new_date);                
+                new_date = "Winter";             
             }
         })
         autumn_months.forEach(element =>{
             if(date.includes(element)){
                 new_date = "Autumn";  
-                console.log(new_date);      
             }
         })
         spring_months.forEach(element =>{
             if(date.includes(element)){
-                new_date = "Spring";        
-                console.log(new_date);
+                new_date = "Spring";      
             }
         })
         console.log(new_date)
@@ -136,11 +133,11 @@ class ClientAnalysis {
                 if ("Price" in this.state.client && this.state.client["Price"]!==undefined){
                     switch(this.state.client["Price"]['Filter']){
                         case "+":
-                            txt='accomodation_price_greater(FinalLocation,Date,Type,Price,"'+this.state.client["Price"]['Value']+'")';
+                            txt='accomodation_price_greater(FinalLocation,Date,Type,Price,"'+this.state.client["Price"]['Min']+'")';
                      
                             break;
                         case "-":
-                            txt='accomodation_price_lower(FinalLocation,Date,Type,Price,"'+this.state.client["Price"]['Value']+'")';
+                            txt='accomodation_price_lower(FinalLocation,Date,Type,Price,"'+this.state.client["Price"]['Max']+'")';
                             break;
                         case "+-":
                             txt = 'accomodation_price_between(FinalLocation,Date,Type,Price"'+this.state.client["Price"]["Min"]+'","'+ this.state.client["Price"]['Max']+'")';
@@ -168,11 +165,11 @@ class ClientAnalysis {
                 if ("Price" in this.state.client && this.state.client["Price"]!==undefined){
                     switch(this.state.client["Price"]['Filter']){
                         case "+":
-                            txt='flight_price_greater(InitialLocation,FinalLocation,Date,Hour,Class,Price,"'+this.state.client["Price"]['Value']+'")';
+                            txt='flight_price_greater(InitialLocation,FinalLocation,Date,Hour,Class,Price,"'+this.state.client["Price"]['Min']+'")';
                      
                             break;
                         case "-":
-                            txt='flight_price_lower(InitialLocation,FinalLocation,Date,Hour,Class,Price,"'+this.state.client["Price"]['Value']+'")';
+                            txt='flight_price_lower(InitialLocation,FinalLocation,Date,Hour,Class,Price,"'+this.state.client["Price"]['Max']+'")';
                             break;
                         case "+-":
                             txt = 'flight_price_between(InitialLocation,FinalLocation,Date,Hour,Class,Price,"'+this.state.client["Price"]["Min"]+'","'+ this.state.client["Price"]['Max']+'")';
@@ -198,16 +195,17 @@ class ClientAnalysis {
             case "ATTRACTION":
                 txt = 'get_attractions_given_type(FinalLocation,Date,Type,AttractionSubtype,Name,Price)';
                 if ("Price" in this.state.client && this.state.client["Price"]!==undefined){
+                console.log(this.state.client["Price"])
                     switch(this.state.client["Price"]['Filter']){
                         case "+":
-                            txt='attraction_price_greater(FinalLocation,Date,Type,AttractionSubtype,Name,Price,"'+this.state.client["Price"]['Value']+'")';
+                            txt='attraction_price_greater(FinalLocation,Date,Type,Name,Price,"'+this.state.client["Price"]['Min']+'")';
                      
                             break;
                         case "-":
-                            txt='attraction_price_lower(FinalLocation,Date,Type,AttractionSubtype,Name,Price,"'+this.state.client["Price"]['Value']+'")';
+                            txt='attraction_price_lower(FinalLocation,Date,Type,Name,Price,"'+this.state.client["Price"]['Max']+'")';
                             break;
                         case "+-":
-                            txt = 'attraction_price_between((FinalLocation,Date,Type,AttractionSubtype,Name,Price,"'+this.state.client["Price"]["Min"]+'","'+ this.state.client["Price"]['Max']+'")';
+                            txt = 'attraction_price_between(FinalLocation,Date,Type,Name,Price,"'+this.state.client["Price"]["Min"]+'","'+ this.state.client["Price"]['Max']+'")';
                             break;
                     }
                 }
@@ -241,6 +239,7 @@ class ClientAnalysis {
         client['Answer']= []
         client['!Action']= []
         client['ToAnswer']= false
+        client['Query']= undefined
 
         console.log(doc.out('tags'))
 
@@ -292,11 +291,10 @@ class ClientAnalysis {
             }
             changed = true
         }
-        if  (doc.has("~reset~",null,{fuzzy:0.8}) || doc.has("~start~",null,{fuzzy:0.8})){
-            console.log("------------")
+        if  (doc.has("~reset~",null,{fuzzy:0.8}) || doc.has("~start~",null,{fuzzy:0.8}) || doc.has("~clear~",null,{fuzzy:0.8})){
             client = {
                     "Destination":-1,
-                    "Answer" : client["Answer"],
+                    "Answer" : [],
                     "ClientName" : client["ClientName"],
                     "!Action":[],
                     "ToAnswer":false
@@ -314,7 +312,8 @@ class ClientAnalysis {
                 case "FinalLocation":
                     if(doc.has("#City")){
                         client['LQ']=undefined
-                        client["FinalLocation"] = doc.match("#City").canBe("Place").text()
+                        var city = doc.match("#City").canBe("Place").text()
+                        client["FinalLocation"] = city.substring(0,1).toUpperCase() + city.substring(1).toLowerCase() 
                         client['Destination']=1
                     }
                     if(doc.has("#Negative")){
@@ -335,7 +334,7 @@ class ClientAnalysis {
                         client["Price"] = undefined
                     }else if (doc.has("#NumericValue")){
                         client["Price"] = {
-                            "Value":doc.match("#NumericValue").canBe("NumericValue").text(),
+                            "Max":doc.match("#NumericValue").canBe("NumericValue").text(),
                             "Filter":"-"
                         }
                     }
@@ -400,14 +399,15 @@ class ClientAnalysis {
             //Field: FinalLocation || InitialLocation for flights
             if (doc.has("(starting in|from) #City")){
                 var cityInit =  doc.match("(starting in|from) #City").canBe("Place").text()
-                client['InitialLocation'] = cityInit
+                client['InitialLocation'] = cityInit.substring(0,1).toUpperCase() + cityInit.substring(1).toLowerCase()
                 if (client['LQ']==="InitialLocation") client['LQ']=undefined;
                 changed = true
             }
             if (doc.has("(in|to|visit|know) #City"))
             {	// STAY|ATTRACTION : Visiting City
                 var cities =  doc.match("(in|to|visit) #City").canBe("Place").text().split(" ")
-                client['FinalLocation'] = cities[0]
+            
+                client['FinalLocation'] = cities[0].substring(0,1).toUpperCase() + cities[0].substring(1).toLowerCase()
                 client["Destination"] = 1
                 if (client['LQ']==="FinalLocation") client['LQ']=undefined;
                 changed = true
@@ -432,7 +432,7 @@ class ClientAnalysis {
             //PRICE
             if (doc.has("(under|below|up to|until|at most) #Money")){
                 client["Price"] = {
-                    "Value":doc.match("#Money").canBe("Money").text(),
+                    "Max":doc.match("#Money").canBe("Money").text(),
                     "Filter":"-"
                 }
                 if (client['LQ']==="Price") client['LQ']=undefined;
@@ -440,16 +440,16 @@ class ClientAnalysis {
             }
             else if((doc.has("(above|at least) #Money"))){
                 client["Price"] = {
-                    "Value":doc.match("#Money").canBe("Money").text(),
+                    "Min":doc.match("#Money").canBe("Money").text(),
                     "Filter":"+"
                 }
                 if (client['LQ']==="Price") client['LQ']=undefined;
                 changed = true
 
 
-            }else if(doc.has("(between) #NumericValue * #NumericValue"))
+            }else if(doc.has("(between|from) #NumericValue * #NumericValue"))
             {
-                var values = doc.match("#Money").canBe("Money").text().split(" ")
+                var values = doc.match("#NumericValue").canBe("NumericValue").text().split(" ")
                 client["Price"] = {
                     "Filter":"+-"
                 }
@@ -493,7 +493,7 @@ class ClientAnalysis {
                     client['Answer'].push(this.cp.getQuestion('Introduction'))
                 }
             })
- 
+    var show = false;
     if (!('ClientName' in client) ){
         client['Answer'].push(this.cp.getQuestion('ClientName'))
         client['LQ']="ClientName"
@@ -517,6 +517,8 @@ class ClientAnalysis {
     else if(client['Action'] === 'ATTRACTION' || client['LQ']==="Type" ){
         client['Answer'].push("What kind of attraction are you looking for? Fun, Nature, historical or City?")
         client['LQ']="Type"
+    }else{
+        show =true;
     }
     if (changed === false){
         client['Answer'].splice(0,0,this.cp.getQuestion('Unsupported'));
@@ -525,7 +527,7 @@ class ClientAnalysis {
 
     //Order
     // Add function to provide data based on filter
-    if (doc.has("~(show|find|see|give|tell)~") || client.Answer.length===0){
+    if (doc.has("~(show|find|see|give|tell)~") || client.Answer.length===0 || show ==true){
         client['ToAnswer']=true;
 
         var txt;

@@ -35,6 +35,18 @@
     flex-direction: row;
     background-color: rgb(163, 161, 180);
 }
+
+.projectDescriptionTitle{
+
+    font-size: large;
+    font-weight: bolder;
+    color: white;
+}
+.projectDescriptionSubTitle{
+    font-size: medium;
+    font-weight: bold;
+    color: white;
+}
 .projectDescription{
     display: flex;
     width: 67%;
