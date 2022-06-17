@@ -16,15 +16,22 @@ def callSwiProlog():
     if query is None: return Response("Bad Request: Input parameter 'query' is missing", status=400, mimetype='application/json')
     try:
         pengine = Pengine(builder=pengine_builder)
+        
         pengine.doAsk(pengine.ask(query))
+        i = 0
         if not pengine.currentQuery:
-            return Response("An Error Occurred", status=400, mimetype='application/json')
+            response = jsonify([{"Answer":"No Results are Available"}])
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            return response
            
-        while pengine.currentQuery.hasMore:
+        while pengine.currentQuery.hasMore and i<20:
             pengine.doNext(pengine.currentQuery)
+            i+=1
 
     except Exception as e:
-        return Response("An Error Occurred", status=500, mimetype='application/json')
+        response = jsonify([{"Answer":"An Error Occurred"}])
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
     response = jsonify(pengine.currentQuery.availProofs)
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
