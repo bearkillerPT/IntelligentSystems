@@ -6,6 +6,7 @@ import ChatInput from './ChatInput'
 import ClientAnalysis from './ComponentAnalysis'
 
 import debounce from 'lodash.debounce';
+import { animateScroll } from 'react-scroll';
 class ChatComponent extends Component {
   constructor(props) {
     super(props);

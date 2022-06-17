@@ -450,7 +450,7 @@ class ClientAnalysis {
                 var data =  doc.match("#Date").canBe("Date").text();
                 changed = true;
                 client['Date'] = data;
-                if (client['LQ']==="Date")
+                if (client['LQ']==="Date") 
                     client['LQ']=undefined;
             }
         

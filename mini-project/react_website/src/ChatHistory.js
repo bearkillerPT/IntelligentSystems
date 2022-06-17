@@ -1,14 +1,13 @@
-import React, { Component } from 'react';
+import React, { Component, GetDerivedStateFromProps } from 'react';
+import { animateScroll } from 'react-scroll';
 import ChatMessage from './ChatMessage'
-import { animateScroll } from "react-scroll";
 
 class ChatHistory extends Component {
+
   scrollToBottom = () => {
-    setTimeout(() => {
     animateScroll.scrollToBottom({
-      containerId: "chatHistory"
+      continerId: "chatHistory"
     });
-    }, 150);
   }
 
   componentDidMount() {
@@ -18,7 +17,6 @@ class ChatHistory extends Component {
   componentDidUpdate() {
     this.scrollToBottom();
   }
-
   render() {
     const messages = this.props.messages.map((message, index) =>
       <ChatMessage key={index} message={message} />
