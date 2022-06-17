@@ -9,8 +9,8 @@
 .chatApp {
   display: flex;
   flex-direction: column;
-  overflow: scroll;
   justify-content: space-between;
+  height: 100%;
   width: 100%;
   padding: 10px;
 }
@@ -21,20 +21,24 @@
   align-items: center;
   justify-content: center;
 }
+.comments{
+  overflow: hidden;
+}
 
 .chatApp .comments {
   margin: 0;
   display: flex;
+  overflow: auto;
   flex-direction: column;
   justify-content: flex-end;
 }
 
 .chatApp .chatHistory {
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
-}
+  overflow-y: auto;
 
+}
 .chatApp .chatInput {
   min-height: 38px;
 }

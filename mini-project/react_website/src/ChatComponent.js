@@ -6,6 +6,7 @@ import ChatInput from './ChatInput'
 import ClientAnalysis from './ComponentAnalysis'
 
 import debounce from 'lodash.debounce';
+import { animateScroll } from 'react-scroll';
 class ChatComponent extends Component {
   constructor(props) {
     super(props);
@@ -66,6 +67,20 @@ class ChatComponent extends Component {
   fixup(text) {
     // Hack fix for weird "?" spacing in elizabot
     return text.replace(/ \?/g, '?');
+  }
+
+  scrollToBottom = () => {
+    animateScroll.scrollToBottom({
+      continerId: "chatHistory"
+    });
+  }
+
+  componentDidMount() {
+    this.scrollToBottom();
+  }
+
+  componentDidUpdate() {
+    this.scrollToBottom();
   }
 
   render() {
