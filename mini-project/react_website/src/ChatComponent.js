@@ -69,20 +69,6 @@ class ChatComponent extends Component {
     return text.replace(/ \?/g, '?');
   }
 
-  scrollToBottom = () => {
-    animateScroll.scrollToBottom({
-      continerId: "chatHistory"
-    });
-  }
-
-  componentDidMount() {
-    this.scrollToBottom();
-  }
-
-  componentDidUpdate() {
-    this.scrollToBottom();
-  }
-
   render() {
     return (
       <div className="chatApp">
