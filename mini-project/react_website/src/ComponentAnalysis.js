@@ -2,7 +2,6 @@
 //npm i compromise
 import nlp from 'compromise'
 import ConversationProvider from './AnswerProvider'
-import dljs from 'damerau-levenshtein-js'
 
 class ClientAnalysis {
     
@@ -50,8 +49,7 @@ class ClientAnalysis {
         if (!input)
           return;
 
-          var messages = this.state.messages.slice(0);
-        fetch('http://localhost:5000/api?query='+this.fixup(input))
+        fetch('http://localhost:3009/api?query='+input)
         .then(async response => {
             const data = await response.json();
     
@@ -64,41 +62,32 @@ class ClientAnalysis {
             console.log(data)
     
             //attraction_type(A,B)
-            data.forEach(element => {
-              messages = this.state.messages.slice(0);
-              messages.push({
-                user: true,
-                text: element['A'].toString(),
-                date: new Date(),
-              });
-              this.setState({
-                messages,
-              });
-            });
+            
             
         })
         .catch(error => {
-            this.setState({ errorMessage: error.toString() });
             console.error('There was an error!', error);
         });
       }
 
       seasonDate(date){
-        var seasons = ["Summer", "winter", "autumn", "spring"]
+        var seasons = ["summer", "winter", "autumn", "spring"]
         var winter_months = ["january", "february", "march"]
         var spring_months = ["april", "may", "june"]
         var summer_months = ["july", "august", "september"]
         var autumn_months = ["october", "november", "december"]
 
-        var new_date;
+        var new_date = date.toLowerCase();
         date = date.toLowerCase();
 
         if(date.includes("fall")){
-            new_date = "autumn";
+            new_date = "Autumn";
         }
+        if (seasons.includes(new_date.toLowerCase()))
+            return new_date;
 
         seasons.forEach(element =>{
-            if(date.includes(element)){
+            if(date.includes(element.toLowerCase())){
                 new_date = element;
                 console.log(new_date);
             }
@@ -123,11 +112,12 @@ class ClientAnalysis {
             }
         })
         spring_months.forEach(element =>{
-            if(date.includes(element.toLowerCase())){
+            if(date.includes(element)){
                 new_date = "Spring";        
                 console.log(new_date);
             }
         })
+        console.log(new_date)
         return new_date;
     }
     
@@ -160,70 +150,111 @@ class ClientAnalysis {
         return;
     }
 
+
+
+
     handleProlog(){
         var txt = "";
         
         switch(this.state.client.Action){
             // accomodation("Where", "Season", "Type", "Price").
             case "STAY":
-                txt = "accomodation(";
-                ["FinalLocation" , "Date", "Type", "Price"].forEach(element=>{
+                txt = 'accomodation(FinalLocation,Date,Type,Price)';
+                if ("Price" in this.state.client && this.state.client["Price"]!==undefined){
+                    switch(this.state.client["Price"]['Filter']){
+                        case "+":
+                            txt=txt.replace("accomodation", "accomodation_price_greater");
+                            txt = txt.replace("Price", '"'+this.state.client["Price"]['Value']+'"');
+                            break;
+                        case "-":
+                            txt=txt.replace("accomodation", "accomodation_price_lower");
+                            txt = txt.replace("Price", '"'+this.state.client["Price"]['Value']+'"');
+                            break;
+                        case "+-":
+                            txt = txt.replace("accomodation", "accomodation_price_between");
+                            txt = txt.replace("Price", '"'+this.state.client["Price"]["Min"]+'","'+this.state.client["Price"]['Max']+'"');
+                            break;
+                    }
+                }
+
+                ["FinalLocation", "Date", "Type"].forEach(element=>{
                     if(element in this.state.client && this.state.client[element]!==undefined){
                         if (element === "Date"){
-                            txt += this.seasonDate(this.state.client[element]) + ", ";
+                            txt = txt.replace("Date", '"'+this.seasonDate(this.state.client[element])+'"')
                         }else{
-                            txt += this.state.client[element] + ", ";
+                            txt = txt.replace(element, '"'+this.state.client[element]+'"');
                         }
                     }
-                    else{
-                        txt += element + ", ";
-                    }
                 })
-                txt = txt.substring(0, txt.length - 2);
-                txt += ").";
+                console.log(txt)
+                break;
+               
+            // flight("From - Country", "From - Continent", "To - Country", "To - Continent", "Date", "Hour", "Class", "Price").
+            case "FLIGHT":
+                txt = 'flight(InitialLocation,_,FinalLocation,_,Date,Hour,Class,Price)';
+                if ("Price" in this.state.client && this.state.client["Price"]!==undefined){
+                    switch(this.state.client["Price"]['Filter']){
+                        case "+":
+                            txt='flight_price_greater(InitialLocation,FinalLocation,Date,Hour,Class,"'+this.state.client["Price"]['Value']+'")';
+                     
+                            break;
+                        case "-":
+                            txt='flight_price_lower(InitialLocation,FinalLocation,Date,Hour,Class,"'+this.state.client["Price"]['Value']+'")';
+                            break;
+                        case "+-":
+                            txt = 'flight_price_between(InitialLocation,FinalLocation,Date,Hour,Class,"'+this.state.client["Price"]["Min"]+'","'+ this.state.client["Price"]['Max']+'")';
+                         
+                            break;
+                    }
+                }
+
+                ["InitialLocation", "Date", "FinalLocation"].forEach(element=>{
+                    if(element in this.state.client && this.state.client[element]!==undefined){
+                        if (element === "Date"){
+                            txt = txt.replace("Date", '"'+this.update_date_format(this.state.client[element])+'"')
+                        }else{
+                            txt = txt.replace(element, '"'+this.state.client[element]+'"');
+                        }
+                    }
+                });
                 console.log(txt)
                 break;
 
-            // flight("From - Country", "From - Continent", "To - Country", "To - Continent", "Date", "Hour", "Class", "Price").
-            case "FLIGHT":
-                txt = "flight(";
-                ["InitialLocation", "InitialContinent", "FinalLocation", "FinalContinent", "Date", "Hour", "Class", "Price"].forEach(element=>{
-                    if(element in this.state.client && this.state.client[element]!==undefined){
-                        if (element === "Date"){
-                            txt += this.update_date_format(this.state.client[element]) + ", ";
-                        }else{
-                            txt += this.state.client[element] + ", ";
-                        }
-                    }
-                    else{
-                        txt += element + ", ";
-                    }
-                })
-                txt = txt.substring(0, txt.length - 2);
-                txt += ").";
-                break;
 
+           
             // attraction("Where", "Season", "Type", "Name", "Price").
             case "ATTRACTION":
-                txt = "attraction(";
-                ["FinalLocation", "Date", "Type", "Name", "Price"].forEach(element=>{
+                txt = 'get_attractions_given_type(FinalLocation,Date,AttractionSubtype,Type,Name,Price)';
+                if ("Price" in this.state.client && this.state.client["Price"]!==undefined){
+                    switch(this.state.client["Price"]['Filter']){
+                        case "+":
+                            txt='attraction_price_greater(FinalLocation,Date,AttractionSubtype,Type,Name,"'+this.state.client["Price"]['Value']+'")';
+                     
+                            break;
+                        case "-":
+                            txt='attraction_price_lower(FinalLocation,Date,AttractionSubtype,Type,Name,"'+this.state.client["Price"]['Value']+'")';
+                            break;
+                        case "+-":
+                            txt = 'attraction_price_between((FinalLocation,Date,AttractionSubtype,Type,Name,"'+this.state.client["Price"]["Min"]+'","'+ this.state.client["Price"]['Max']+'")';
+                            break;
+                    }
+                }
+
+                ["FinalLocation", "Date", "Type"].forEach(element=>{
                     if(element in this.state.client && this.state.client[element]!==undefined){
                         if (element === "Date"){
-                            txt += this.seasonDate(this.state.client[element]) + ", ";
+                            txt = txt.replace("Date", '"'+this.seasonDate(this.state.client[element])+'"')
                         }else{
-                            txt += this.state.client[element] + ", ";
+                            txt = txt.replace(element, '"'+this.state.client[element]+'"');
                         }
                     }
-                    else{
-                        txt += element + ", ";
-                    }
-                })
-                txt = txt.substring(0, txt.length - 2);
-                txt += ").";
+                });
+                console.log(txt)  
                 break;
             default:
                 break;
         }
+        this.callProlog(txt)
         return txt;
     };
       
@@ -372,22 +403,24 @@ class ClientAnalysis {
         // 0-No, 1-Yes, -1- Not Answered
 
             // What do You Wanna Do (STAY|FLIGHT|ATTRACTION)
-            if (doc.has("~(flights|fly|airplane|takeoff)~")){
+            if (doc.has("~(flights|fly|airplane|takeoff)~", null, {fuzzy:0.6})){
                 client['Action'] = "FLIGHT"
                 if (client['Action']==="InitialLocation") client['LQ']=undefined;
                 changed = true
 
-            }else if (doc.has("~(stay|accomodation|hotel|room|motel)~")){
+            }else if (doc.has("~(stay|accomodation|hotel|room|motel)~", null, {fuzzy:0.6})){
                 client['Action'] = "STAY"
                 if (client['Action']==="InitialLocation") client['LQ']=undefined;
                 changed = true
 
-            }else if (doc.has("~(attractions|events)~")){
+            }else if (doc.has("~(attractions|events)~", null, {fuzzy:0.6})){
                 client['Action'] = "ATTRACTION"
                 if (client['Action']==="InitialLocation") client['LQ']=undefined;
                 changed = true
             }
-
+            if (doc.has("#Place") && !doc.has("#City")){
+                client['Answer'].splice(0,0,"Help me out! If you have a destination give me the city");
+            }
             //PLACES
             //Field: FinalLocation || InitialLocation for flights
             if (doc.has("(starting in|from) #City")){
@@ -417,6 +450,8 @@ class ClientAnalysis {
                 var data =  doc.match("#Date").canBe("Date").text();
                 changed = true;
                 client['Date'] = data;
+                if (client['LQ']==="Date")
+                    client['LQ']=undefined;
             }
         
             //PRICE
@@ -509,14 +544,28 @@ class ClientAnalysis {
         client['LQ']="Type"
     }
     if (changed === false){
-        client['Answer'].push(this.cp.getQuestion('Unsupported'))
+        client['Answer'].splice(0,0,this.cp.getQuestion('Unsupported'));
+    
     }
 
     //Order
     // Add function to provide data based on filter
     if (doc.has("~(show|find|see|give|tell)~")){
         client['ToAnswer']=true;
-        var txt = this.handleProlog()
+
+        var txt;
+        if (client['Action']==="FLIGHT"){
+            if('Date' in client && client['Date']!== undefined && ["summer", "winter", "autumn", "spring", "fall"].includes(client['Date'])){
+                client['Answer'].push("In what date are you planning to go (day of month)?")
+                client['LQ']="Date"
+            }else{
+                txt = this.handleProlog();
+            }
+        }else{
+            txt = this.handleProlog();
+        }
+        client['Answer'].splice(0,0,"Don't worry, we're processing your request!");
+    
         console.log(txt)
         // 
         //this.callProlog(txt);
