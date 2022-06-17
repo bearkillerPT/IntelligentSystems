@@ -1,13 +1,12 @@
-import React, { Component, GetDerivedStateFromProps } from 'react';
-import { animateScroll } from 'react-scroll';
+import React, { Component, createRef, GetDerivedStateFromProps, useRef } from 'react';
 import ChatMessage from './ChatMessage'
 
 class ChatHistory extends Component {
-
   scrollToBottom = () => {
-    animateScroll.scrollToBottom({
-      continerId: "chatHistory"
-    });
+    console.log("DOWN")
+    if(this.chatHistoryRef.current)
+    this.chatHistoryRef.current.scrollTop = this.chatHistoryRef.current.scrollHeight;
+
   }
 
   componentDidMount() {
@@ -18,12 +17,14 @@ class ChatHistory extends Component {
     this.scrollToBottom();
   }
   render() {
+    this.chatHistoryRef = createRef()
+
     const messages = this.props.messages.map((message, index) =>
       <ChatMessage key={index} message={message} />
     );
 
     return (
-      <div className="chatHistory" id="chatHistory">
+      <div className="chatHistory" ref={this.chatHistoryRef} id="chatHistory">
         {messages}
       </div>
     );
