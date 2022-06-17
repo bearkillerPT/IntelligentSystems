@@ -42,6 +42,7 @@ class ChatComponent extends Component {
     });
     this.setState({
       messages,
+      client
     });
     this.debounced_reply(client.Answer);
   }

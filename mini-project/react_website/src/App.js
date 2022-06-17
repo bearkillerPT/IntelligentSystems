@@ -1,7 +1,6 @@
 import React from 'react';
 import ChatComponent from './ChatComponent';
 import './App.css'
-import ClientAnalysis from './ComponentAnalysis';
 const App = () => {
 
     return (

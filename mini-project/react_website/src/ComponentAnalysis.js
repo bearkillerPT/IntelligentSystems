@@ -1,6 +1,4 @@
 // npm init -y
-
-
 //npm i compromise
 import nlp from 'compromise'
 import ConversationProvider from './AnswerProvider'
@@ -17,7 +15,6 @@ class ClientAnalysis {
                 "Answer" : [],
                 "!Action":[],
                 "ToAnswer":false
-
             }
         }
 
@@ -28,7 +25,6 @@ class ClientAnalysis {
                 isA: 'Date',
             },
            
-           
             },
             // add or change words in the lexicon
             words: {
@@ -36,25 +32,20 @@ class ClientAnalysis {
                 winter: 'Season',
                 spring: 'Season',
                 autumn: 'Season',
+                fall: 'Season',
                 no:     'Negative',
                 nope:     'Negative',
-                city:   'City',
-                city:   "AttType",
-                nature: 'Nature',
-                nature: 'AttType',
-                historical: 'AttType',
-                historical: 'Historical',
-                fun:    'AttType',
-                fun:    'Fun',
-                
-
-            },})
+                city:   ['City', "AttType"],
+                nature: ['Nature', 'AttType'],
+                historical: ['AttType','Historical'],
+                fun:    ['AttType','Fun'],
+            },
+        })
     }
    
     callProlog(input){
         //attraction_type(X,Y)
         input = input.trim();
-        
     
         if (!input)
           return;
@@ -92,12 +83,156 @@ class ClientAnalysis {
         });
       }
 
+      seasonDate(date){
+        var seasons = ["Summer", "winter", "autumn", "spring"]
+        var winter_months = ["january", "february", "march"]
+        var spring_months = ["april", "may", "june"]
+        var summer_months = ["july", "august", "september"]
+        var autumn_months = ["october", "november", "december"]
 
+        var new_date;
+        date = date.toLowerCase();
+
+        if(date.includes("fall")){
+            new_date = "autumn";
+        }
+
+        seasons.forEach(element =>{
+            if(date.includes(element)){
+                new_date = element;
+                console.log(new_date);
+            }
+        })
+
+        summer_months.forEach(element =>{
+            if(date.includes(element)){
+                new_date = "Summer";
+                console.log(new_date);                
+            }
+        })
+        winter_months.forEach(element =>{
+            if(date.includes(element)){
+                new_date = "Winter";
+                console.log(new_date);                
+            }
+        })
+        autumn_months.forEach(element =>{
+            if(date.includes(element)){
+                new_date = "Autumn";  
+                console.log(new_date);      
+            }
+        })
+        spring_months.forEach(element =>{
+            if(date.includes(element.toLowerCase())){
+                new_date = "Spring";        
+                console.log(new_date);
+            }
+        })
+        return new_date;
+    }
+    
+    update_date_format(date){
+        var months = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
+
+        var new_date = "";
+        for(var i = 0; i<12; i++){
+            if(date.includes(months[i].toLowerCase())){
+                console.log(months[i])
+                var day = date.replace(/\D/g, '');
+                console.log(day)
+                if (day){
+                    if(i<9){
+                        new_date = day + "-0" + (i+1);    
+                    }else{
+                        new_date = day + "-" + (i+1);
+                    }
+                    return new_date;
+                }else{
+                    if(i<9){
+                        new_date = "01-0" + (i+1);    
+                    }else{
+                        new_date = "01-0" + (i+1);
+                    }
+                    return new_date;
+                }
+            }
+        }
+        return;
+    }
+
+    handleProlog(){
+        var txt = "";
+        
+        switch(this.state.client.Action){
+            // accomodation("Where", "Season", "Type", "Price").
+            case "STAY":
+                txt = "accomodation(";
+                ["FinalLocation" , "Date", "Type", "Price"].forEach(element=>{
+                    if(element in this.state.client && this.state.client[element]!==undefined){
+                        if (element === "Date"){
+                            txt += this.seasonDate(this.state.client[element]) + ", ";
+                        }else{
+                            txt += this.state.client[element] + ", ";
+                        }
+                    }
+                    else{
+                        txt += element + ", ";
+                    }
+                })
+                txt = txt.substring(0, txt.length - 2);
+                txt += ").";
+                console.log(txt)
+                break;
+
+            // flight("From - Country", "From - Continent", "To - Country", "To - Continent", "Date", "Hour", "Class", "Price").
+            case "FLIGHT":
+                txt = "flight(";
+                ["InitialLocation", "InitialContinent", "FinalLocation", "FinalContinent", "Date", "Hour", "Class", "Price"].forEach(element=>{
+                    if(element in this.state.client && this.state.client[element]!==undefined){
+                        if (element === "Date"){
+                            txt += this.update_date_format(this.state.client[element]) + ", ";
+                        }else{
+                            txt += this.state.client[element] + ", ";
+                        }
+                    }
+                    else{
+                        txt += element + ", ";
+                    }
+                })
+                txt = txt.substring(0, txt.length - 2);
+                txt += ").";
+                break;
+
+            // attraction("Where", "Season", "Type", "Name", "Price").
+            case "ATTRACTION":
+                txt = "attraction(";
+                ["FinalLocation", "Date", "Type", "Name", "Price"].forEach(element=>{
+                    if(element in this.state.client && this.state.client[element]!==undefined){
+                        if (element === "Date"){
+                            txt += this.seasonDate(this.state.client[element]) + ", ";
+                        }else{
+                            txt += this.state.client[element] + ", ";
+                        }
+                    }
+                    else{
+                        txt += element + ", ";
+                    }
+                })
+                txt = txt.substring(0, txt.length - 2);
+                txt += ").";
+                break;
+            default:
+                break;
+        }
+        return txt;
+    };
+      
     analyze_question=(input)=> {
         let doc = nlp(input)
         doc.contractions().expand()
         doc.compute('root')
         // Clear Answers
+        var changed = false;
         var client = this.state.client;
         client['Answer']= []
         client['!Action']= []
@@ -107,37 +242,68 @@ class ClientAnalysis {
 
         if (doc.has("~(hello|hi|howdy|hey)~ *")){
             client['!Action'].push("GREETING")
+            changed = true
         }
         //Goodbye
         if (doc.has("(goodbye|bye|see you later|until next time|farewell)")){
             client['!Action'].push("FAREWELL")
+            changed = true
         }
 
-        if (doc.has("~(#Possessive|#Pronoun)~ * #Copula #Person") || doc.has("#Pronoun #Person")){
+        if (doc.has("~(#Possessive|#Pronoun)~ * #Copula #Person") || doc.has("#Pronoun #Person" )){
             client['ClientName'] = doc.match("#Person").canBe("Person").text()
-            client['!Action'].push(this.cp.getQuestion('Greeting')+" "+client['ClientName'])
+            client['Answer'].push(this.cp.getQuestion('Greeting')+" "+client['ClientName'])
+            changed = true
         }
 
 
         //Question
         if (doc.has("#QuestionWord")){
             client['ToAnswer']=true;
-            if (doc.has("~(you)~")){
+            
+            if (doc.has("~(mean)~", null, {fuzzy:0.5})){
+                switch(client['LQ']){
+                    case "FinalLocation":
+                        client['Answer'].push(this.cp.getQuestion('ClarifyDestination'))
+                        break;
+                    case "Action":
+                        client['Answer'].push(this.cp.getQuestion('ClarifyAction'))
+                        break;
+                    case "Date":
+                        client['Answer'].push(this.cp.getQuestion('ClarifyDate'))
+                        break;
+                    case "Type":
+                        client['Answer'].push(this.cp.getQuestion('ClarifyType'))
+                        break;
+                    default:
+                        client['!Action'].push("INTRODUCE")
+                        break;
+                }
+    
+            }else if (doc.has("~(you)~")){
                 client['!Action'].push("INTRODUCE")
             }else{
                 client['!Action'].push("QUESTION")
             }
-        } 
-        //Order
-        // Add function to provide data based on filter
-        if (doc.has("~(show|find)~")){
-            client['ToAnswer']=true;
+            changed = true
+        }
+        if (doc.has("~(start over|restart|reset)~", null, {fuzzy:0.6})){
+            client['Answer'].push(this.cp.getQuestion('Reset'))
+            this.state = {
+                client : {
+                    "Destination":-1,
+                    "Answer" : client["Answer"],
+                    "ClientName" : client["ClientName"],
+                    "!Action":[],
+                    "ToAnswer":false
+    
+                }
+            }
+            changed = true
         }
 
-      
-
         //Negative Answers
-        if ('LQ' in client && client['LQ']!=undefined){
+        if ('LQ' in client && client['LQ']!==undefined){
             console.log(client['LQ'])
             switch(client['LQ']){
                 case "FinalLocation":
@@ -162,6 +328,11 @@ class ClientAnalysis {
                     if(doc.has("#Negative")){
                         client['LQ']=undefined
                         client["Price"] = undefined
+                    }else if (doc.has("#NumericValue")){
+                        client["Price"] = {
+                            "Value":doc.match("#NumericValue").canBe("NumericValue").text(),
+                            "Filter":"-"
+                        }
                     }
                     break;
                 case "Action":
@@ -175,20 +346,26 @@ class ClientAnalysis {
                         client['LQ']=undefined
                         client["Type"] = undefined
                     }
+                    break;
                 case "ClientName":
                     if(doc.has("#Negative")){
                         client['LQ']=undefined
                         client["ClientName"] = undefined
+                    }else if(doc.has("#Person")){
+
+                        client['ClientName'] = doc.match("#Person").canBe("Person").text()
+                        client['LQ']=undefined
                     }
                     break;
+                default:
+                    break;
             }
-
-            if (client['LQ']==undefined)
+            if (client['LQ']===undefined){
                 client['Answer'].push(this.cp.getQuestion('Confirmation'))
+                changed = true
+            }
+               
         }
-        //Welcome
-       
-
 
         //Questions Like:
         // Do you have a destination
@@ -197,65 +374,49 @@ class ClientAnalysis {
             // What do You Wanna Do (STAY|FLIGHT|ATTRACTION)
             if (doc.has("~(flights|fly|airplane|takeoff)~")){
                 client['Action'] = "FLIGHT"
+                if (client['Action']==="InitialLocation") client['LQ']=undefined;
+                changed = true
 
             }else if (doc.has("~(stay|accomodation|hotel|room|motel)~")){
                 client['Action'] = "STAY"
+                if (client['Action']==="InitialLocation") client['LQ']=undefined;
+                changed = true
 
             }else if (doc.has("~(attractions|events)~")){
                 client['Action'] = "ATTRACTION"
+                if (client['Action']==="InitialLocation") client['LQ']=undefined;
+                changed = true
             }
-
 
             //PLACES
             //Field: FinalLocation || InitialLocation for flights
             if (doc.has("(starting in|from) #City")){
                 var cityInit =  doc.match("(starting in|from) #City").canBe("Place").text()
                 client['InitialLocation'] = cityInit
-                if (client['LQ']=="InitialLocation") client['LQ']=undefined;
-
+                if (client['LQ']==="InitialLocation") client['LQ']=undefined;
+                changed = true
             }
             if (doc.has("(in|to|visit|know) #City"))
             {	// STAY|ATTRACTION : Visiting City
                 var cities =  doc.match("(in|to|visit) #City").canBe("Place").text().split(" ")
                 client['FinalLocation'] = cities[0]
                 client["Destination"] = 1
-                if (client['LQ']=="FinalLocation") client['LQ']=undefined;
+                if (client['LQ']==="FinalLocation") client['LQ']=undefined;
+                changed = true
             }
         
             if(doc.has("#Negative * (destination|city)") || doc.has("(somewhere|anywhere)"))
             {	//No Destination / Go Somewhere
                 client["Destination"] = 0
-                if (client['LQ']=="FinalLocation") client['LQ']=undefined;
+                if (client['LQ']==="FinalLocation") client['LQ']=undefined;
+                changed = true
             }
-
-
 
             //DATES
             if (doc.has("#Date")){
-                
-                if (doc.has("#Month") && doc.has("#NumericValue") ){
-                    var month =  doc.match("#Month").canBe("Month").text()                
-                    let max = {"value":100, "month":0};
-                    var mCounter = 1;
-                    ["January","February","March","April","May","June","July","August","September","October","November","December"].forEach(element=>{
-                        let result = dljs.distance(element, month);
-                        if (result<max['value']) max = {"value":result, "month":mCounter}
-                        mCounter++;
-                    });
-
-                    var month_st = max['month'].toString()
-                    if (month_st.length!=2) month_st = "0"+month_st
-                   
-
-                    var day =  doc.match("#NumericValue").canBe("NumericValue").text()  
-                    if (day.length==1) day = "0"+day
-                    if (day.length!=2) day = day.substring(0,2)
-                    client['Date'] = day+"-"+month_st
-                    if (client['LQ']==="Date") client['LQ']=undefined;
-
-                }else if (doc.has("#Season")){
-
-                }
+                var data =  doc.match("#Date").canBe("Date").text();
+                changed = true;
+                client['Date'] = data;
             }
         
             //PRICE
@@ -265,6 +426,7 @@ class ClientAnalysis {
                     "Filter":"-"
                 }
                 if (client['LQ']==="Price") client['LQ']=undefined;
+                changed = true
             }
             else if((doc.has("(above|at least) #Money"))){
                 client["Price"] = {
@@ -272,10 +434,27 @@ class ClientAnalysis {
                     "Filter":"+"
                 }
                 if (client['LQ']==="Price") client['LQ']=undefined;
-            }
-            
-            //Type
+                changed = true
 
+
+            }else if(doc.has("(between) #NumericValue * #NumericValue"))
+            {
+                var values = doc.match("#Money").canBe("Money").text().split(" ")
+                client["Price"] = {
+                    "Filter":"+-"
+                }
+                if (parseInt(values[0],10)<parseInt(values[1],10)) {
+                    client['Price']['Min'] = values[0];
+                    client['Price']['Max'] = values[1]
+                }else{
+                    client['Price']['Min'] = values[1];
+                    client['Price']['Max'] = values[0]
+                }
+                if (client['LQ']==="Price") client['LQ']=undefined;
+                changed = true
+            }
+
+            //Type
             if (doc.has("~(fun|nature|city|historic)~", null, {fuzzy:0.6})){
                 if (doc.has("~fun~", null, {fuzzy:0.6})){
                    client['Type'] = "Fun"
@@ -291,8 +470,9 @@ class ClientAnalysis {
 
                  }
                 if (client['LQ']==="Type") client['LQ']=undefined;
+
+                changed = true
             }
-          
 
             client["!Action"].forEach(element=>{
                 if (element === "GREETING"){
@@ -303,9 +483,6 @@ class ClientAnalysis {
                     client['Answer'].push(this.cp.getQuestion('Introduction'))
                 }
             })
-            
-        
-
  
     if (!('ClientName' in client) ){
         client['Answer'].push(this.cp.getQuestion('ClientName'))
@@ -315,39 +492,39 @@ class ClientAnalysis {
         client['Answer'].push(this.cp.getQuestion('FinalLocation'))
         client['LQ']="FinalLocation"
 
-    }else if(!('Date' in client) || client['LQ']==="Date" ){
+    }else if((!('Date' in client) && !("Season" in client)) || client['LQ']==="Date" ){
         client['Answer'].push("When are you planning to go?")
         client['LQ']="Date"
-    }else if(!('Price' in client) || client['LQ']==="Price" ){
+
+    }else if(!('Price' in client)  || client['LQ']==="Price" ){
         client['Answer'].push("Do you have any price range restrictions?")
         client['LQ']="Price"
+
     }else if(!('Action' in client) || client['LQ']==="Action" ){
         client['Answer'].push("What are you planning to do?")
         client['LQ']="Action"
     }
-    else if(client['Action'] == 'ATTRACTION' || client['LQ']==="Type" ){
+    else if(client['Action'] === 'ATTRACTION' || client['LQ']==="Type" ){
         client['Answer'].push("What kind of attraction are you looking for? Fun, Nature, historical or City?")
         client['LQ']="Type"
     }
-    if (client['ToAnswer']==false && client['Answer'].length==0){
+    if (changed === false){
         client['Answer'].push(this.cp.getQuestion('Unsupported'))
     }
-    
-   
-    
+
+    //Order
+    // Add function to provide data based on filter
+    if (doc.has("~(show|find|see|give|tell)~")){
+        client['ToAnswer']=true;
+        var txt = this.handleProlog()
+        console.log(txt)
+        // 
+        //this.callProlog(txt);
+    }
+  
     return client
     
-}
-
-
-   
-   
+    }
 }
 
 export default ClientAnalysis
-
-  
-
-
-
-
