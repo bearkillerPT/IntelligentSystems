@@ -138,7 +138,7 @@ class ClientAnalysis {
                             txt='accomodation_price_lower(FinalLocation,Date,Type,Price,"'+this.state.client["Price"]['Max']+'")';
                             break;
                         case "+-":
-                            txt = 'accomodation_price_between(FinalLocation,Date,Type,Price"'+this.state.client["Price"]["Min"]+'","'+ this.state.client["Price"]['Max']+'")';
+                            txt = 'accomodation_price_between(FinalLocation,Date,Type,Price,"'+this.state.client["Price"]["Min"]+'","'+ this.state.client["Price"]['Max']+'")';
                          
                             break;
                     }
