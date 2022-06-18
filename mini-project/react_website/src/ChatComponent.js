@@ -63,7 +63,7 @@ class ChatComponent extends Component {
         messages,
       });
       try {
-        fetch('http://localhost:3009/api?query='+query)
+        fetch('https://nlp.si.bearkillerpt.xyz/api?query='+query)
       .then(async response => {
           const data = await response.json();
 
