@@ -1,3 +1,5 @@
+// npm init -y
+//npm i compromise
 import nlp from 'compromise'
 import ConversationProvider from './AnswerProvider'
 
