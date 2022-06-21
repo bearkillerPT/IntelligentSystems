@@ -465,24 +465,32 @@ class ClientAnalysis {
             }
 
             //Type
-            if (doc.has("~(fun|nature|city|historic)~", null, {fuzzy:0.6})){
-                if (doc.has("~fun~", null, {fuzzy:0.6})){
-                   client['Type'] = "Fun"
+            if (doc.has("~fun~", null, {fuzzy:0.6})){
+                client['Type'] = "Fun"
+                if (client['LQ']==="Type") client['LQ']=undefined;
+                changed = true
 
-                }else if(doc.has("~City~", null, {fuzzy:0.6})){
-                    client['Type'] = "City"
-
-                 }else if(doc.has("~nature~", null, {fuzzy:0.6})){
-                    client['Type'] = "Nature"
-
-                 }else if(doc.has("~historic~", null, {fuzzy:0.6})){
-                    client['Type'] = "Historical"
-
-                 }
+            }else if(doc.has("~City~", null, {fuzzy:0.6})){
+                client['Type'] = "City"
                 if (client['LQ']==="Type") client['LQ']=undefined;
 
                 changed = true
+
+                }else if(doc.has("~nature~", null, {fuzzy:0.6})){
+                client['Type'] = "Nature"
+                if (client['LQ']==="Type") client['LQ']=undefined;
+
+                changed = true
+
+                }else if(doc.has("~historic~", null, {fuzzy:0.6})){
+                client['Type'] = "Historical"
+                if (client['LQ']==="Type") client['LQ']=undefined;
+
+                changed = true
+
             }
+              
+            
 
             client["!Action"].forEach(element=>{
                 if (element === "GREETING"){
@@ -514,7 +522,7 @@ class ClientAnalysis {
         client['Answer'].push("What are you planning to do?")
         client['LQ']="Action"
     }
-    else if(client['Action'] === 'ATTRACTION' || client['LQ']==="Type" ){
+    else if((client['Action'] === 'ATTRACTION' && !("Type" in client)) || client['LQ']==="Type" ){
         client['Answer'].push("What kind of attraction are you looking for? Fun, Nature, historical or City?")
         client['LQ']="Type"
     }else{
